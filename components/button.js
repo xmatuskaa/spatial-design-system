@@ -283,6 +283,13 @@ AFRAME.registerComponent("button", {
         this.el.setAttribute('class', 'clickable')
         this.el.addEventListener("click", () => {
             this.animateButtonOnClick();
+          const currentText = textEl.getAttribute("value");
+
+          if (currentText === "CLICK ME") {
+            textEl.setAttribute("value", "CLICKED");
+          } else {
+            textEl.setAttribute("value", "CLICK ME");
+          }
         })
     },
 

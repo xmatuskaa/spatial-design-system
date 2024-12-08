@@ -1,6 +1,8 @@
 import "../primitives/ar-button.js";
 import "../components/position.js";
 import "../components/menu.js";
+import "../components/controllers";
+import "../components/vrinteractive.js";
 const app = document.getElementById("app");
 const scene = document.createElement("a-scene");
 
@@ -21,7 +23,7 @@ scene.innerHTML = `
     rounded=true
     outlined=true
     billboard
-    class="interactive"
+    vrinteractive="highlightColor: #ff0000"
 ></a-ar-button>
 <a-box 
     position="-1 1.2 -2" 
@@ -31,7 +33,7 @@ scene.innerHTML = `
     depth="0.4"
     color="#4CC3D9"
     shadow
-    class="interactive"
+        vrinteractive="highlightColor: #ff0000"
     animation="property: rotation; to: 0 405 0; dur: 2000; easing: linear; loop: true">
 </a-box>
 
@@ -42,30 +44,7 @@ scene.innerHTML = `
   <a-entity material="color: #03FCC6"></a-entity>
 </a-entity>
 
-<!-- Controllers with raycasters and cursors for interaction -->
-<a-entity id="leftHand" 
-    oculus-touch-controls="hand: left" 
-    raycaster="showLine: true; lineColor: red; far: 10; direction: 0 -0.4 -1; origin: 0 0 0; objects: .interactive">
-    <!-- Sphere cursor for left hand -->
-    <a-sphere
-        radius="0.02"
-        material="color: red; shader: flat; opacity: 0.8; metalness: 0.5; roughness: 0.5"
-        position="0 -4 -10"
-        raycaster-cursor>
-    </a-sphere>
-</a-entity>
-
-<a-entity id="rightHand" 
-    oculus-touch-controls="hand: right" 
-    raycaster="showLine: true; lineColor: blue; far: 10; direction: 0 -0.4 -1; origin: 0 0 0; objects: .interactive">
-    <!-- Sphere cursor for right hand -->
-    <a-sphere
-        radius="0.02"
-        material="color: blue; shader: flat; opacity: 0.8; metalness: 0.5; roughness: 0.5"
-        position="0 -4 -10"
-        raycaster-cursor>
-    </a-sphere>
-</a-entity>
+<a-entity controllers></a-entity>
 
 <!-- Simplified camera rig -->
 <a-entity id="rig" position="0 0 0">
