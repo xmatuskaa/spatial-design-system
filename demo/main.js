@@ -3,6 +3,7 @@ import "../components/position.js";
 import "../components/menu.js";
 import "../components/controllers";
 import "../components/vrinteractive.js";
+import "../primitives/ar-checkbox.js";
 const app = document.getElementById("app");
 const scene = document.createElement("a-scene");
 
@@ -37,12 +38,24 @@ scene.innerHTML = `
     animation="property: rotation; to: 0 405 0; dur: 2000; easing: linear; loop: true">
 </a-box>
 
-<a-entity circle position="3 2.6 -5.5" class="interactive">
-  <a-entity material="color: #8A8A8A"></a-entity>
-  <a-entity material="color: #018A6C"></a-entity>
-  <a-entity material="color: #00C170"></a-entity>
-  <a-entity material="color: #03FCC6"></a-entity>
+<a-entity circle position="3 2.6 -5.5"     
+>
+  <a-entity material="color: #8A8A8A" vrinteractive="highlightColor: #ff0000"></a-entity>
+  <a-entity material="color: #018A6C" vrinteractive="highlightColor: #ff0000"></a-entity>
+  <a-entity material="color: #00C170" vrinteractive="highlightColor: #ff0000"></a-entity>
+  <a-entity material="color: #03FCC6" vrinteractive="highlightColor: #ff0000"></a-entity>
 </a-entity>
+<a-ar-checkbox
+vrinteractive="highlightColor: #ff0000"
+    position="-0.5 2.6 -3"
+    size="extra-large"
+></a-ar-checkbox>
+<a-ar-checkbox
+vrinteractive="highlightColor: #ff0000"
+    position="0.5 2.6 -3"
+    value="true"
+    size="extra-large"
+></a-ar-checkbox>
 
 <a-entity controllers></a-entity>
 

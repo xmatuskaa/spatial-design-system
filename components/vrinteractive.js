@@ -6,11 +6,12 @@ AFRAME.registerComponent("vrinteractive", {
     gripEnabled: { type: "boolean", default: true },
     clickAnimation: { type: "boolean", default: true },
     highlightColor: { type: "color", default: "#666666" },
+    borderWidth: { type: "number", default: 2 }, // Line width in pixels
   },
 
   init() {
     this.originalScale = this.el.object3D.scale.clone();
-    this.originalColor = null;
+    this.borderLine = null;
     this.isHighlighted = false;
     this.setupVRInteractions();
   },
@@ -29,6 +30,7 @@ AFRAME.registerComponent("vrinteractive", {
     });
 
     this.el.addEventListener("raycaster-intersected-cleared", (evt) => {
+      this.handleInteractionEnd();
       this.intersecting = false;
       this.raycaster = null;
       if (this.data.clickAnimation) {
@@ -65,6 +67,9 @@ AFRAME.registerComponent("vrinteractive", {
     // Restore original scale
     if (this.data.clickAnimation) {
       this.el.object3D.scale.copy(this.originalScale);
+      if (this.borderLine) {
+        this.borderLine.scale.copy(this.originalScale);
+      }
     }
   },
 
@@ -72,19 +77,40 @@ AFRAME.registerComponent("vrinteractive", {
     const mesh = this.el.getObject3D("mesh");
     if (!mesh) return;
 
-    // Store original color on first intersection
-    if (!this.originalColor && mesh.material) {
-      this.originalColor = mesh.material.color.clone();
-    }
-
     // Skip if already in desired highlight state
     if (this.isHighlighted === highlight) return;
 
-    if (mesh.material) {
-      if (highlight) {
-        mesh.material.color.set(this.data.highlightColor);
-      } else {
-        mesh.material.color.copy(this.originalColor);
+    if (highlight) {
+      // Create border if it doesn't exist
+      if (!this.borderLine) {
+        const geometry = mesh.geometry;
+        const positions = geometry.attributes.position;
+
+        // Create edges geometry
+        const edges = new THREE.EdgesGeometry(geometry);
+
+        // Create line material
+        const material = new THREE.LineBasicMaterial({
+          color: this.data.highlightColor,
+          linewidth: this.data.borderWidth,
+          transparent: true,
+          opacity: 1,
+        });
+
+        // Create line segments
+        this.borderLine = new THREE.LineSegments(edges, material);
+
+        // Position the border slightly in front of the mesh to prevent z-fighting
+        this.borderLine.position.z = 0.001;
+
+        // Add the border to the object's 3D group
+        mesh.parent.add(this.borderLine);
+      }
+      this.borderLine.visible = true;
+    } else {
+      // Hide the border
+      if (this.borderLine) {
+        this.borderLine.visible = false;
       }
     }
 
@@ -92,10 +118,32 @@ AFRAME.registerComponent("vrinteractive", {
   },
 
   remove() {
-    // Clean up by restoring original appearance
+    // Clean up by removing the border line
+    if (this.borderLine && this.borderLine.parent) {
+      this.borderLine.parent.remove(this.borderLine);
+    }
+
     if (this.data.clickAnimation) {
       this.el.object3D.scale.copy(this.originalScale);
-      this.highlightElement(false);
+    }
+  },
+
+  update(oldData) {
+    // Update border color if it changed
+    if (
+      oldData.highlightColor &&
+      this.data.highlightColor !== oldData.highlightColor
+    ) {
+      if (this.borderLine) {
+        this.borderLine.material.color.set(this.data.highlightColor);
+      }
+    }
+
+    // Update border width if it changed
+    if (oldData.borderWidth && this.data.borderWidth !== oldData.borderWidth) {
+      if (this.borderLine) {
+        this.borderLine.material.linewidth = this.data.borderWidth;
+      }
     }
   },
 });
