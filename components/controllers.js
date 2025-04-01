@@ -15,10 +15,17 @@ AFRAME.registerComponent("controllers", {
     this.handleTriggerUp = this.handleTriggerUp.bind(this);
     this.handleGripDown = this.handleGripDown.bind(this);
     this.handleGripUp = this.handleGripUp.bind(this);
+    this.handleAButtonDown = this.handleAButtonDown.bind(this);
+    this.handleAButtonUp = this.handleAButtonUp.bind(this);
+    this.handleBButtonDown = this.handleBButtonDown.bind(this);
+    this.handleBButtonUp = this.handleBButtonUp.bind(this);
+    this.handleXButtonDown = this.handleXButtonDown.bind(this);
+    this.handleXButtonUp = this.handleXButtonUp.bind(this);
+    this.handleYButtonDown = this.handleYButtonDown.bind(this);
+    this.handleYButtonUp = this.handleYButtonUp.bind(this);
     
     this.controllerEls = [];
-    
-    // Wait for scene to load to ensure rig exists
+
     this.el.sceneEl.addEventListener('loaded', () => {
       this.setupControllers();
     });
@@ -29,18 +36,15 @@ AFRAME.registerComponent("controllers", {
   },
 
   setupControllers() {
-    // Find the rig
     const rig = this.el.sceneEl.querySelector("#rig");
     
     if (this.data.leftEnabled) {
       const leftHand = this.createController("left", this.data.leftColor);
       this.controllerEls.push(leftHand);
       
-      // Always append to rig if it exists
       if (rig) {
         rig.appendChild(leftHand);
       } else {
-        // Fallback to scene if no rig
         this.el.sceneEl.appendChild(leftHand);
       }
     }
@@ -48,12 +52,10 @@ AFRAME.registerComponent("controllers", {
     if (this.data.rightEnabled) {
       const rightHand = this.createController("right", this.data.rightColor);
       this.controllerEls.push(rightHand);
-      
-      // Always append to rig if it exists
+
       if (rig) {
         rig.appendChild(rightHand);
       } else {
-        // Fallback to scene if no rig
         this.el.sceneEl.appendChild(rightHand);
       }
     }
@@ -77,6 +79,14 @@ AFRAME.registerComponent("controllers", {
     controller.addEventListener("triggerup", this.handleTriggerUp);
     controller.addEventListener("gripdown", this.handleGripDown);
     controller.addEventListener("gripup", this.handleGripUp);
+    controller.addEventListener("abuttondown", this.handleAButtonDown);
+    controller.addEventListener("abuttonup", this.handleAButtonUp);
+    controller.addEventListener("bbuttondown", this.handleBButtonDown);
+    controller.addEventListener("bbuttonup", this.handleBButtonUp);
+    controller.addEventListener("xbuttondown", this.handleXButtonDown);
+    controller.addEventListener("xbuttonup", this.handleXButtonUp);
+    controller.addEventListener("ybuttondown", this.handleYButtonDown);
+    controller.addEventListener("ybuttonup", this.handleYButtonUp);
     
     const cursor = document.createElement("a-sphere");
     cursor.setAttribute("radius", this.data.cursorSize);
@@ -88,10 +98,10 @@ AFRAME.registerComponent("controllers", {
     });
     cursor.setAttribute("position", "0 0 0");
     cursor.setAttribute("raycaster-cursor", "");
-      cursor.setAttribute("auto-scale", {
-        enabled: true,
-        factor: 1.0
-      }); 
+    cursor.setAttribute("auto-scale", {
+      enabled: true,
+      factor: 1.0
+    }); 
     controller.appendChild(cursor);
     
     return controller;
@@ -134,6 +144,78 @@ AFRAME.registerComponent("controllers", {
     }
   },
 
+  handleAButtonDown(evt) {
+    const controller = evt.target;
+    const raycaster = controller.components.raycaster;
+    
+    if (raycaster && raycaster.intersectedEls.length > 0) {
+      raycaster.intersectedEls[0].emit("abuttondown");
+    }
+  },
+
+  handleAButtonUp(evt) {
+    const controller = evt.target;
+    const raycaster = controller.components.raycaster;
+    
+    if (raycaster && raycaster.intersectedEls.length > 0) {
+      raycaster.intersectedEls[0].emit("abuttonup");
+    }
+  },
+
+  handleBButtonDown(evt) {
+    const controller = evt.target;
+    const raycaster = controller.components.raycaster;
+    
+    if (raycaster && raycaster.intersectedEls.length > 0) {
+      raycaster.intersectedEls[0].emit("bbuttondown");
+    }
+  },
+
+  handleBButtonUp(evt) {
+    const controller = evt.target;
+    const raycaster = controller.components.raycaster;
+    
+    if (raycaster && raycaster.intersectedEls.length > 0) {
+      raycaster.intersectedEls[0].emit("bbuttonup");
+    }
+  },
+
+  handleXButtonDown(evt) {
+    const controller = evt.target;
+    const raycaster = controller.components.raycaster;
+    
+    if (raycaster && raycaster.intersectedEls.length > 0) {
+      raycaster.intersectedEls[0].emit("xbuttondown");
+    }
+  },
+
+  handleXButtonUp(evt) {
+    const controller = evt.target;
+    const raycaster = controller.components.raycaster;
+    
+    if (raycaster && raycaster.intersectedEls.length > 0) {
+      raycaster.intersectedEls[0].emit("xbuttonup");
+    }
+  },
+
+  handleYButtonDown(evt) {
+    const controller = evt.target;
+    const raycaster = controller.components.raycaster;
+    
+    if (raycaster && raycaster.intersectedEls.length > 0) {
+      raycaster.intersectedEls[0].emit("ybuttondown");
+    }
+  },
+
+  handleYButtonUp(evt) {
+    const controller = evt.target;
+    const raycaster = controller.components.raycaster;
+    
+    if (raycaster && raycaster.intersectedEls.length > 0) {
+      raycaster.intersectedEls[0].emit("ybuttonup");
+    }
+  },
+
   update(oldData) {
     if (this.needsControllerRecreation(oldData)) {
       this.remove();
@@ -157,6 +239,14 @@ AFRAME.registerComponent("controllers", {
       controller.removeEventListener("triggerup", this.handleTriggerUp);
       controller.removeEventListener("gripdown", this.handleGripDown);
       controller.removeEventListener("gripup", this.handleGripUp);
+      controller.removeEventListener("abuttondown", this.handleAButtonDown);
+      controller.removeEventListener("abuttonup", this.handleAButtonUp);
+      controller.removeEventListener("bbuttondown", this.handleBButtonDown);
+      controller.removeEventListener("bbuttonup", this.handleBButtonUp);
+      controller.removeEventListener("xbuttondown", this.handleXButtonDown);
+      controller.removeEventListener("xbuttonup", this.handleXButtonUp);
+      controller.removeEventListener("ybuttondown", this.handleYButtonDown);
+      controller.removeEventListener("ybuttonup", this.handleYButtonUp);
       
       if (controller.parentNode) {
         controller.parentNode.removeChild(controller);

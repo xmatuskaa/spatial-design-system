@@ -1,9 +1,9 @@
-import "../components/controller-attach.js"; // Import the controller-attach component
+import "../components/controllerAttach.js"; // Import the controller-attach component
 import "../primitives/ar-button.js";
 import "../components/position.js";
 import "../components/controllers.js";  // Import your controllers component
 import "../components/autoVr.js";
-import "../components/vrinteractive.js";
+import "../components/vrInteractive.js";
 import "../components/controllerMovement.js";
 
 
@@ -42,7 +42,7 @@ scene.innerHTML = `
         <a-entity
             geometry="primitive: circle; radius: 0.05"
             material="color: #FF5722"
-            class="clickable"
+            vr-interactive
         ></a-entity>
     </a-entity>
     
@@ -50,7 +50,7 @@ scene.innerHTML = `
         <a-entity
             geometry="primitive: circle; radius: 0.05"
             material="color: #4CAF50"
-            class="clickable"
+            vr-interactive
         ></a-entity>
     </a-entity>
     
@@ -58,15 +58,15 @@ scene.innerHTML = `
         <a-entity
             geometry="primitive: circle; radius: 0.05"
             material="color: #9C27B0"
-            class="clickable"
+            vr-interactive
         ></a-entity>
     </a-entity>
 </a-entity>
 
 <!-- Test scene objects to interact with -->
-<a-box position="-1 1 -3" width="0.5" height="0.5" depth="0.5" color="#F44336" class="vrinteractive"></a-box>
-<a-sphere position="0 1.25 -3" radius="0.5" color="#2196F3" class="vrinteractive"></a-sphere>
-<a-cylinder position="1 1 -3" radius="0.5" height="1" color="#4CAF50" vrinteractive></a-cylinder>
+<a-box position="-1 1 -3" width="0.5" height="0.5" depth="0.5" color="#F44336" vr-interactive></a-box>
+<a-sphere position="0 1.25 -3" radius="0.5" color="#2196F3" vr-interactive></a-sphere>
+<a-cylinder position="1 1 -3" radius="0.5" height="1" color="#4CAF50" vr-interactive></a-cylinder>
 
 <!-- Camera rig -->
 <a-entity id="rig" position="0 0 0">
