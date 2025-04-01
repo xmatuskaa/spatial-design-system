@@ -6,16 +6,20 @@ import * as AFRAME from "aframe";
  * Attaches an entity to a VR controller with configurable offset and orientation.
  * The entity will follow the controller's position and rotation.
  * Compatible with the custom controllers component from controllers.js.
+ * 
+ * @namespace spatial-design-system
+ * @component controller-attach
  */
 AFRAME.registerComponent("controller-attach", {
   schema: {
     hand: { type: "string", default: "right", oneOf: ["left", "right"] },
     offset: { type: "vec3", default: { x: 0, y: 0, z: 0 } },
     rotation: { type: "vec3", default: { x: 0, y: 0, z: 0 } },
-    lookAtCamera: { type: "boolean", default: false }
+    lookAtCamera: { type: "boolean", default: false },
+    forwardEvents: { type: "boolean", default: true }
   },
 
-  init: function() {
+  init() {
     this.controllerEl = null;
     this.cameraEl = document.querySelector("[camera]");
     
@@ -24,34 +28,44 @@ AFRAME.registerComponent("controller-attach", {
     this.controllerPosition = new THREE.Vector3();
     this.cameraPosition = new THREE.Vector3();
     
-    // Find the appropriate controller (using the IDs from your controllers.js)
+    // Bind methods to maintain context
+    this.findController = this.findController.bind(this);
+    
+    // Find the appropriate controller
     this.findController();
     
     // Set up a listener for when controllers might be created after this component initializes
-    this.el.sceneEl.addEventListener("loaded", this.findController.bind(this));
+    this.el.sceneEl.addEventListener("loaded", this.findController);
     
     // Add listener for controller connections
-    this.el.sceneEl.addEventListener("controllerconnected", this.findController.bind(this));
+    this.el.sceneEl.addEventListener("controllerconnected", this.findController);
+    
+    // Add event listeners if forwarding is enabled
+    if (this.data.forwardEvents) {
+      this.addEventListeners();
+    }
   },
 
-  findController: function() {
+  findController() {
     // Find controller by ID based on the custom controllers component
-    // The controllers.js creates controllers with specific IDs: "leftHand" and "rightHand"
+    // Controllers are expected to have IDs "leftHand" and "rightHand"
     const controllerId = this.data.hand === "left" ? "leftHand" : "rightHand";
     this.controllerEl = document.getElementById(controllerId);
     
     if (!this.controllerEl) {
       console.warn(`Controller-attach: ${this.data.hand} controller (ID: ${controllerId}) not found. Will retry...`);
       // Retry after a short delay to allow controllers to initialize
-      setTimeout(() => this.findController(), 500);
+      this.findControllerTimeout = setTimeout(() => this.findController(), 500);
     } else {
-      console.log(`Controller-attach: ${this.data.hand} controller found and attached`);
+      if (this.data.forwardEvents) {
+        this.addEventListeners();
+      }
     }
   },
 
-  tick: function() {
+  tick() {
     // Skip if no controller is found
-    if (!this.controllerEl) {
+    if (!this.controllerEl || !this.controllerEl.isConnected) {
       return;
     }
     
@@ -62,7 +76,7 @@ AFRAME.registerComponent("controller-attach", {
     this.updateRotation();
   },
 
-  updatePosition: function() {
+  updatePosition() {
     // Get world position of the controller
     this.controllerEl.object3D.getWorldPosition(this.controllerPosition);
     
@@ -85,36 +99,44 @@ AFRAME.registerComponent("controller-attach", {
     this.el.object3D.position.copy(this.worldPosition);
   },
 
-  updateRotation: function() {
+  updateRotation() {
     if (this.data.lookAtCamera && this.cameraEl) {
-      // Get camera position
-      this.cameraEl.object3D.getWorldPosition(this.cameraPosition);
-      
-      // Make the entity look at the camera
-      this.el.object3D.lookAt(this.cameraPosition);
-      
-      // Apply additional rotation specified in the component data
-      this.el.object3D.rotation.x += THREE.MathUtils.degToRad(this.data.rotation.x);
-      this.el.object3D.rotation.y += THREE.MathUtils.degToRad(this.data.rotation.y);
-      this.el.object3D.rotation.z += THREE.MathUtils.degToRad(this.data.rotation.z);
+      try {
+        // Get camera position
+        this.cameraEl.object3D.getWorldPosition(this.cameraPosition);
+        
+        // Make the entity look at the camera
+        this.el.object3D.lookAt(this.cameraPosition);
+        
+        // Apply additional rotation specified in the component data
+        this.el.object3D.rotation.x += THREE.MathUtils.degToRad(this.data.rotation.x);
+        this.el.object3D.rotation.y += THREE.MathUtils.degToRad(this.data.rotation.y);
+        this.el.object3D.rotation.z += THREE.MathUtils.degToRad(this.data.rotation.z);
+      } catch (error) {
+        console.error("Error updating rotation with lookAtCamera", error);
+      }
     } else {
-      // Copy the controller's rotation
-      const controllerRotation = new THREE.Euler();
-      this.controllerEl.object3D.rotation.reorder('YXZ'); // Ensure consistent rotation order
-      controllerRotation.copy(this.controllerEl.object3D.rotation);
-      
-      // Apply additional rotation
-      controllerRotation.x += THREE.MathUtils.degToRad(this.data.rotation.x);
-      controllerRotation.y += THREE.MathUtils.degToRad(this.data.rotation.y);
-      controllerRotation.z += THREE.MathUtils.degToRad(this.data.rotation.z);
-      
-      // Set the rotation
-      this.el.object3D.rotation.copy(controllerRotation);
+      try {
+        // Copy the controller's rotation
+        const controllerRotation = new THREE.Euler();
+        this.controllerEl.object3D.rotation.reorder('YXZ'); // Ensure consistent rotation order
+        controllerRotation.copy(this.controllerEl.object3D.rotation);
+        
+        // Apply additional rotation
+        controllerRotation.x += THREE.MathUtils.degToRad(this.data.rotation.x);
+        controllerRotation.y += THREE.MathUtils.degToRad(this.data.rotation.y);
+        controllerRotation.z += THREE.MathUtils.degToRad(this.data.rotation.z);
+        
+        // Set the rotation
+        this.el.object3D.rotation.copy(controllerRotation);
+      } catch (error) {
+        console.error("Error updating rotation", error);
+      }
     }
   },
 
-  // Make the component propagate click events from the controller to the attached object
-  addEventListeners: function() {
+  // Make the component propagate events from the controller to the attached object
+  addEventListeners() {
     if (!this.controllerEl) return;
     
     // List of events to forward
@@ -122,34 +144,54 @@ AFRAME.registerComponent("controller-attach", {
       'click', 'triggerdown', 'triggerup', 'gripdown', 'gripup'
     ];
     
+    // Store event handlers to enable removal later
+    this.eventHandlers = {};
+    
     events.forEach(eventName => {
       const forwardEvent = (evt) => {
         this.el.emit(eventName, evt.detail, false);
       };
       
       // Store the listener function so we can remove it later
-      this[`${eventName}Listener`] = forwardEvent;
+      this.eventHandlers[eventName] = forwardEvent;
       this.controllerEl.addEventListener(eventName, forwardEvent);
     });
   },
   
-  removeEventListeners: function() {
-    if (!this.controllerEl) return;
+  removeEventListeners() {
+    if (!this.controllerEl || !this.eventHandlers) return;
     
-    // List of events to remove
-    const events = [
-      'click', 'triggerdown', 'triggerup', 'gripdown', 'gripup'
-    ];
-    
-    events.forEach(eventName => {
-      const listener = this[`${eventName}Listener`];
-      if (listener) {
-        this.controllerEl.removeEventListener(eventName, listener);
-      }
+    // Remove all event listeners
+    Object.entries(this.eventHandlers).forEach(([eventName, handler]) => {
+      this.controllerEl.removeEventListener(eventName, handler);
     });
+    
+    this.eventHandlers = {};
   },
   
-  remove: function() {
+  update(oldData) {
+    // Handle changes to forwardEvents
+    if (oldData.forwardEvents !== undefined && 
+        this.data.forwardEvents !== oldData.forwardEvents) {
+      if (this.data.forwardEvents) {
+        this.addEventListeners();
+      } else {
+        this.removeEventListeners();
+      }
+    }
+  },
+  
+  remove() {
+    // Clean up event listeners
     this.removeEventListeners();
+    
+    // Clear timeouts
+    if (this.findControllerTimeout) {
+      clearTimeout(this.findControllerTimeout);
+    }
+    
+    // Remove scene event listeners
+    this.el.sceneEl.removeEventListener("loaded", this.findController);
+    this.el.sceneEl.removeEventListener("controllerconnected", this.findController);
   }
 });
