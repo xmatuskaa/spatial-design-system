@@ -15,12 +15,6 @@ scene.setAttribute("xr", "requestReferenceSpace: local");
 
 scene.setAttribute("auto-vr", {
   autoEnter: true,
-  buttonText: "Enter VR",
-  buttonExitText: "Exit VR",
-  buttonBgColor: "#3498db",
-  buttonColor: "#ffffff",
-  buttonPosition: "bottom",
-  debug: false
 });
 
 scene.innerHTML = `
@@ -122,29 +116,3 @@ scene.addEventListener('loaded', function() {
     });
   }
 });
-
-// // Create Enter VR button
-// const enterVRButton = document.createElement("button");
-// enterVRButton.textContent = "Enter VR";
-// enterVRButton.style.position = "fixed";
-// enterVRButton.style.bottom = "20px";
-// enterVRButton.style.left = "50%";
-// enterVRButton.style.transform = "translateX(-50%)";
-// enterVRButton.style.padding = "10px 20px";
-// enterVRButton.style.zIndex = "999";
-// enterVRButton.addEventListener("click", async () => {
-//   try {
-//     if (scene.is("vr-mode")) {
-//       await scene.exitVR();
-//     } else {
-//       await scene.enterVR();
-//     }
-//   } catch (error) {
-//     console.error("VR Error:", error);
-//     alert(
-//       "Failed to enter VR. Please make sure your headset is connected and try again."
-//     );
-//   }
-// });
-
-app.appendChild(enterVRButton);
