@@ -10,7 +10,7 @@ const app = document.getElementById("app");
 const scene = document.createElement("a-scene");
 
 scene.setAttribute("vr-mode-ui", "enabled: true");
-scene.setAttribute("loading-screen", "enabled: false");
+scene.setAttribute("loading-screen", "enabled: true");
 scene.setAttribute("xr", "requestReferenceSpace: local");
 
 scene.setAttribute("auto-vr", {
@@ -74,45 +74,3 @@ scene.innerHTML = `
 `;
 
 app.appendChild(scene);
-
-// Set up interaction listeners
-scene.addEventListener('loaded', function() {
-  console.log('Scene loaded, setting up interactions');
-  
-  // Left controller menu button interaction
-  const leftControllerUI = document.getElementById('leftControllerUI');
-  if (leftControllerUI) {
-    leftControllerUI.addEventListener('click', function() {
-      console.log('Left controller UI clicked');
-      // Toggle the visibility of the left controller tool
-      const leftTool = document.getElementById('leftControllerTool');
-      if (leftTool) {
-        leftTool.setAttribute('visible', !leftTool.getAttribute('visible'));
-      }
-    });
-  }
-  
-  // Right controller panel buttons
-  const rightPanel = document.getElementById('rightControllerPanel');
-  if (rightPanel) {
-    const buttons = rightPanel.querySelectorAll('.clickable');
-    buttons.forEach((button, index) => {
-      button.addEventListener('click', function() {
-        console.log(`Right panel button ${index} clicked`);
-        
-        // Change the color of the indicator light based on the button clicked
-        const indicatorLight = document.getElementById('rightControllerLight');
-        if (indicatorLight) {
-          // Get the button's color
-          const buttonColor = button.getAttribute('material').color;
-          // Apply it to the indicator light
-          indicatorLight.setAttribute('material', {
-            color: buttonColor,
-            emissive: buttonColor,
-            emissiveIntensity: 0.5
-          });
-        }
-      });
-    });
-  }
-});
