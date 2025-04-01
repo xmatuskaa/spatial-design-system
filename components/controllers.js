@@ -6,7 +6,7 @@ AFRAME.registerComponent("controllers", {
     rightEnabled: { type: "boolean", default: true },
     leftColor: { type: "color", default: "#cfc7c6" },
     rightColor: { type: "color", default: "#cfc7c6" },
-    cursorSize: { type: "number", default: 0.04 },
+    cursorSize: { type: "number", default: 0.01 },
     raycastLength: { type: "number", default: 10 }
   },
 
@@ -17,7 +17,11 @@ AFRAME.registerComponent("controllers", {
     this.handleGripUp = this.handleGripUp.bind(this);
     
     this.controllerEls = [];
-    this.setupControllers();
+    
+    // Wait for scene to load to ensure rig exists
+    this.el.sceneEl.addEventListener('loaded', () => {
+      this.setupControllers();
+    });
     
     if (!AFRAME.components["raycaster-cursor"]) {
       this.registerRaycasterCursor();
@@ -25,18 +29,33 @@ AFRAME.registerComponent("controllers", {
   },
 
   setupControllers() {
-    const scene = this.el.sceneEl;
+    // Find the rig
+    const rig = this.el.sceneEl.querySelector("#rig");
     
     if (this.data.leftEnabled) {
       const leftHand = this.createController("left", this.data.leftColor);
       this.controllerEls.push(leftHand);
-      scene.appendChild(leftHand);
+      
+      // Always append to rig if it exists
+      if (rig) {
+        rig.appendChild(leftHand);
+      } else {
+        // Fallback to scene if no rig
+        this.el.sceneEl.appendChild(leftHand);
+      }
     }
     
     if (this.data.rightEnabled) {
       const rightHand = this.createController("right", this.data.rightColor);
       this.controllerEls.push(rightHand);
-      scene.appendChild(rightHand);
+      
+      // Always append to rig if it exists
+      if (rig) {
+        rig.appendChild(rightHand);
+      } else {
+        // Fallback to scene if no rig
+        this.el.sceneEl.appendChild(rightHand);
+      }
     }
   },
   
@@ -69,15 +88,10 @@ AFRAME.registerComponent("controllers", {
     });
     cursor.setAttribute("position", "0 0 0");
     cursor.setAttribute("raycaster-cursor", "");
-    
-    // Ensure the cursor size stays visually consistent
-    this.el.sceneEl.addEventListener('camera-set-active', () => {
       cursor.setAttribute("auto-scale", {
         enabled: true,
         factor: 1.0
-      });
-    });
-    
+      }); 
     controller.appendChild(cursor);
     
     return controller;

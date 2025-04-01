@@ -4,6 +4,7 @@ import "../components/position.js";
 import "../components/controllers.js";  // Import your controllers component
 import "../components/autoVr.js";
 import "../components/vrinteractive.js";
+import "../components/controllerMovement.js";
 
 
 const app = document.getElementById("app");
@@ -16,14 +17,14 @@ scene.setAttribute("xr", "requestReferenceSpace: local");
 scene.setAttribute("auto-vr", {
   autoEnter: true,
 });
+scene.setAttribute("controllers", {
+  leftColor: "#FF0000",
+});
 
 scene.innerHTML = `
 <!-- Simple environment for better orientation -->
 <a-sky color="#ECECEC"></a-sky>
 <a-plane position="0 0 0" rotation="-90 0 0" width="20" height="20" color="#7BC8A4" class="interactive"></a-plane>
-
-<!-- Create controllers entity -->
-<a-entity controllers></a-entity>
 
 
 <!-- Panel attached to right controller -->
@@ -31,7 +32,7 @@ scene.innerHTML = `
     id="rightControllerPanel"
     geometry="primitive: plane; width: 0.25; height: 0.15"
     material="color: #2196F3; opacity: 0.8"
-    controller-attach="hand: right; offset: 0.15 0.05 -0.1; rotation: 0 -30 0; lookAtCamera: true"
+    controller-attach="hand: right; offset: 0.15 0.05 -0.1; rotation: 0 -30 0;"
     class="vrinteractive"
 >
     <a-text value="Controls" align="center" position="0 0.05 0.001" scale="0.1 0.1 0.1" color="white"></a-text>
@@ -70,6 +71,7 @@ scene.innerHTML = `
 <!-- Camera rig -->
 <a-entity id="rig" position="0 0 0">
   <a-camera id="camera" wasd-controls look-controls></a-camera>
+    <a-entity controller-movement="hand: left"></a-entity>
 </a-entity>
 `;
 

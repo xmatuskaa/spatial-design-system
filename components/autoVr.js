@@ -5,7 +5,7 @@ AFRAME.registerComponent("auto-vr", {
     autoEnter: { type: "boolean", default: true },
     createButton: { type: "boolean", default: true },
     buttonText: { type: "string", default: "Enter VR" },
-    pollInterval: { type: "number", default: 1000 },
+    pollInterval: { type: "number", default: 2000 },
     maxAttempts: { type: "number", default: 10 }
   },
 
