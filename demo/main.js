@@ -5,7 +5,7 @@ import "../components/controllers.js";  // Import your controllers component
 import "../components/autoVr.js";
 import "../components/vrInteractive.js";
 import "../components/controllerMovement.js";
-
+import "../components/controllerTeleport.js";
 
 const app = document.getElementById("app");
 const scene = document.createElement("a-scene");
@@ -33,7 +33,7 @@ scene.innerHTML = `
     geometry="primitive: plane; width: 0.25; height: 0.15"
     material="color: #2196F3; opacity: 0.8"
     controller-attach="hand: right; offset: 0.15 0.05 -0.1; rotation: 0 -30 0;"
-    class="vrinteractive"
+    vr-interactive
 >
     <a-text value="Controls" align="center" position="0 0.05 0.001" scale="0.1 0.1 0.1" color="white"></a-text>
     
@@ -72,6 +72,7 @@ scene.innerHTML = `
 <a-entity id="rig" position="0 0 0">
   <a-camera id="camera" wasd-controls look-controls></a-camera>
   <a-entity controller-movement="mainHand: left; speed: 2"></a-entity>
+<a-entity controller-teleport="hand: right; button: trigger"></a-entity>
 
 </a-entity>
 `;
