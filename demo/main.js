@@ -71,7 +71,8 @@ scene.innerHTML = `
 <!-- Camera rig -->
 <a-entity id="rig" position="0 0 0">
   <a-camera id="camera" wasd-controls look-controls></a-camera>
-    <a-entity controller-movement="hand: left"></a-entity>
+  <a-entity controller-movement="mainHand: left; speed: 2"></a-entity>
+
 </a-entity>
 `;
 
