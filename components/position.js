@@ -29,13 +29,56 @@ AFRAME.registerComponent("auto-scale", {
 
   init() {
     this.originalScale = this.el.object3D.scale.clone();
+    
     this.camera = this.el.sceneEl.camera;
     this.cameraPos = new AFRAME.THREE.Vector3();
-
+    this.objectPos = new AFRAME.THREE.Vector3();
+    
+    this.initialDistance = null;
+    this.lastDistance = null;
+    
+    this.DISTANCE_THRESHOLD = 0.1;
+    
     this.captureInitialDistance();
-    this.camera.el.addEventListener("loaded", () =>
-      this.captureInitialDistance()
-    );
+    
+    if (this.camera.el) {
+      this.camera.el.addEventListener("loaded", () => this.captureInitialDistance());
+    }
+  },
+
+  captureInitialDistance() {
+    if (!this.camera) return;
+
+    this.camera.getWorldPosition(this.cameraPos);
+    this.el.object3D.getWorldPosition(this.objectPos);
+
+    this.initialDistance = this.cameraPos.distanceTo(this.objectPos);
+    this.lastDistance = this.initialDistance;
+  },
+
+  calculateNewScale() {
+    if (!this.data.enabled || !this.camera || !this.initialDistance) return null;
+
+    this.camera.getWorldPosition(this.cameraPos);
+    this.el.object3D.getWorldPosition(this.objectPos);
+
+    const currentDistance = this.cameraPos.distanceTo(this.objectPos);
+
+    const distanceRatio = Math.abs(currentDistance - this.lastDistance) / this.lastDistance;
+    
+    if (distanceRatio > this.DISTANCE_THRESHOLD) {
+      const normalizedDistance = currentDistance / this.initialDistance;
+      
+      const newScale = this.originalScale
+        .clone()
+        .multiplyScalar(normalizedDistance * this.data.factor);
+
+      this.lastDistance = currentDistance;
+
+      return newScale;
+    }
+
+    return null;
   },
 
   tick() {
@@ -43,28 +86,14 @@ AFRAME.registerComponent("auto-scale", {
 
     if (this.el.components["fit-into-fov"]) {
       this.el.components["fit-into-fov"].setScale();
-    } else {
-      this.el.object3D.scale.copy(this.calculateNewScale());
+      return;
     }
-  },
 
-  captureInitialDistance() {
-    this.camera.getWorldPosition(this.cameraPos);
-    this.initialDistance = this.cameraPos.distanceTo(this.el.object3D.position);
-  },
-
-  calculateNewScale() {
-    if (!this.data.enabled) return null;
-
-    this.camera.getWorldPosition(this.cameraPos);
-
-    const distance = this.cameraPos.distanceTo(this.el.object3D.position);
-    const normalizedDistance = distance / this.initialDistance;
-
-    return this.originalScale
-      .clone()
-      .multiplyScalar(normalizedDistance * this.data.factor);
-  },
+    const newScale = this.calculateNewScale();
+    if (newScale) {
+      this.el.object3D.scale.copy(newScale);
+    }
+  }
 });
 
 AFRAME.registerComponent("follow-camera", {
