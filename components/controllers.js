@@ -66,6 +66,9 @@ AFRAME.registerComponent("controllers", {
     const controller = document.createElement("a-entity");
     controller.setAttribute("id", `${hand}Hand`);
     controller.setAttribute("oculus-touch-controls", `hand: ${hand}`);
+    controller.setAttribute("vive-controls", `hand: ${hand}`);
+    controller.setAttribute("meta-touch-controls", `hand: ${hand}`);
+    controller.setAttribute("windows-motion-controls", `hand: ${hand}`);
     
     controller.setAttribute("raycaster", {
       showLine: true,
