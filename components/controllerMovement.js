@@ -93,7 +93,7 @@ AFRAME.registerComponent("controller-movement", {
     this.isMoving = true;
 
     const speed = this.data.speed;
-    const moveX = xMagnitude * speed;
+    const moveX = -xMagnitude * speed;
     const moveZ = -yMagnitude * speed;
 
     if (this.data.mode === "head") {
@@ -180,7 +180,9 @@ AFRAME.registerComponent("controller-movement", {
     
     const smoothing = Math.max(0.001, Math.min(1, this.data.smoothing));
     
-    const dampingFactor = this.isMoving ? smoothing : smoothing * 3;
+    const dampingFactor = this.isMoving 
+    ? smoothing 
+    : Math.min(1, 1 - Math.pow(1 - smoothing, 0.5));
     
     this.currentVelocity.lerp(this.targetVelocity, dampingFactor);
     
