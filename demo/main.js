@@ -32,7 +32,7 @@ scene.innerHTML = `
     id="rightControllerPanel"
     geometry="primitive: plane; width: 0.25; height: 0.15"
     material="color: #2196F3; opacity: 0.8"
-    controller-attach="hand: right; offset: 0.15 0.05 -0.1; rotation: 0 -30 0;"
+    controller-attach="hand: right; offset: 0.15 0.05 -0.1; faceCamera: true"
     vr-interactive
 >
     <a-text value="Controls" align="center" position="0 0.05 0.001" scale="0.1 0.1 0.1" color="white"></a-text>
